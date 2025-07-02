@@ -39,15 +39,28 @@ extension VortexSystem {
         colors: [SwiftUI.Color],
         in environment: EnvironmentValues
     ) -> VortexSystem {
-        let resolvedColors = colors.map { color in
-            let components = color.resolve(in: environment)
-
-            return Color(
-                red: Double(components.red),
-                green: Double(components.green),
-                blue: Double(components.blue),
-                opacity: Double(components.opacity)
-            )
+        let resolvedColors: [VortexSystem.Color]
+        if #available(iOS 17.0, *) {
+            resolvedColors = colors.map { color in
+                let components = color.resolve(in: environment)
+                return Color(
+                    red: Double(components.red),
+                    green: Double(components.green),
+                    blue: Double(components.blue),
+                    opacity: Double(components.opacity)
+                )
+            }
+        } else {
+            // Fallback on earlier versions
+            resolvedColors = colors.map { color in
+                let components = color.backportedComponents
+                return Color(
+                    red: Double(components.red),
+                    green: Double(components.green),
+                    blue: Double(components.blue),
+                    opacity: Double(components.opacity)
+                )
+            }
         }
 
         return VortexSystem(
